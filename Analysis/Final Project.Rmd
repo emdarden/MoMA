@@ -1,0 +1,181 @@
+---
+title: "Have You Missed Your Moment to Make a Masterpiece?"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
+```
+### By: Erika Darden
+# Introduction
+
+For artists of any age, making it into a major gallery like the Modern Museum of Art (MoMA) is an incredible feat. But how old were these talented artists when they made their first work of art that landed them there? And does where they were born affect this age?
+
+#### Background
+
+The Museum of Modern Art (MoMA) has amassed an incredible collection containing almost 200,000 works from around the world. In an attempt to help everyone understand and enjoy its collection, MoMA has made available its artwork and artists datasets. The artwork dataset contains 134,106 records that includes title, artist, date made, medium, dimensions and other attributes. The artists dataset contains 15,548 records that include name, nationality,gender,birth year, and death year. 
+
+For more information, the dataset is available here: https://github.com/MuseumofModernArt/collection
+
+To view other ways people have used the data visit: https://medium.com/@foe/here-s-a-roundup-of-how-people-have-used-our-data-so-far-80862e4ce220
+
+Many works in the collection can be viewed here: https://www.moma.org/collection/
+
+#### Hypothesis
+
+I believe where someone is born greatly influences their relationship with art. I would think that those surrounded by more art would have a headstart on creating their own masterpieces.Therefore, I hypothesize that where an artist was born does have an effect on the age in which they create a work of art good enough to be in MoMA. 
+
+## Data Wrangling
+
+####Curation
+
+First, we must load the datasets downloaded from the link provided above.
+```{r}
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+artist_data <- read_csv("artists.csv")
+artwork_data <- read_csv("artworks.csv")
+
+artist_data
+artwork_data
+```
+#### Tidy the data
+
+To begin tidying the data, first we'll rename some columns to make them easier to work with. Then we'll select only the columns we may find useful for this analysis.
+```{r}
+artwork_data <- rename(artwork_data, Artwork_ID=`Artwork ID`, Artist_ID=`Artist ID`, Acquisition_Date = `Acquisition Date`)
+
+artist_data <- rename(artist_data, Birth_Year=`Birth Year`, Artist_ID=`Artist ID`)
+
+artwork_data <- artwork_data %>%
+  select(Artwork_ID, Title, Artist_ID, Name, Date, Acquisition_Date)
+```
+
+For this analysis, let's only look artworks done by a single artist. We will remove works with multiple artists from artwork_data. In the data, works with multiple artists have multiple artist IDs separated by a comma (","). We use a regular expression to filter out entities with a comma in `Artist_ID`.
+```{r}
+artwork_data <- artwork_data %>%
+  filter(!str_detect(Artist_ID, ".*,.*"))
+```
+
+Now, let's remove any artists with unknown birth years from `artist_data`.
+```{r}
+artist_data <- artist_data %>%
+  filter(!is.na(Birth_Year))
+```
+
+When first viewing the data I could see that the `Date` column was very untidy and would require some cleaning up. Let's see what kinds of entries will require modification by filtering out correctly formatted years. 
+```{r}
+artwork_data_bad <- artwork_data %>%
+  filter(!str_detect(`Date`, "^\\d{4}$")) %>%
+  select(Date)
+
+sample_frac(artwork_data_bad, .1)
+```
+It looks like many `Date` entries include ranges and other various notations. We will again use regular expressions to isolate a year and clean up these entries. Afterward we will remove any remaining `NA` entries. Then we'll change the column type of `Date` from `character` to `integer`.
+```{r}
+artwork_data$Date <- str_extract(artwork_data$Date, "\\d{4}")
+
+artwork_data <- artwork_data %>%
+  filter(!is.na(Date))
+
+artwork_data <- artwork_data %>%
+  type_convert(cols_only(Artist_Id = col_integer(), Title = col_character(), Artist_ID = col_integer(), Name = col_character(), Date = col_integer(), Acquisition_Date = col_date(format = "%Y-%m-%d")))
+
+
+```
+
+Next, we'll find the date of the earliest artwork created by each artist and add that to `artist_data` and remove any resulting entities with NA. Then we'll calculate the artists' age at the time of creation. To account for any error we'll filter out any ages less than or equal to ten or greater than 100.
+```{r}
+earliest_work <- artwork_data %>%
+  group_by(Artist_ID) %>%
+  summarise(min_date=min(Date))
+
+artist_data <- artist_data %>%
+  left_join(earliest_work, by="Artist_ID")
+
+artist_data <- artist_data %>%
+  filter(!is.na(min_date) & !(is.na(Nationality)))
+
+artist_data$age <- (artist_data$min_date - artist_data$Birth_Year)
+
+artist_data <- artist_data %>%
+  filter(age > 10 & age < 100)
+```
+
+Here we can see that there are 117 different nationalities of artists. For this analysis we'll just use the top 15 nations with the most artists.
+```{r}
+unique(artist_data$Nationality)
+```
+
+```{r}
+most_nationalities <- artist_data %>%
+  group_by(Nationality) %>%
+  summarise(count = n()) %>%
+  top_n(15)
+
+most_nationalities
+```
+Now we'll filter out all artists who are not from one of the top 15 nations.
+```{r}
+top_artist_data <- artist_data %>%
+  filter(Nationality %in% c("American","Austrian","British","Canadian", "Dutch", "French", "German", "Italian", "Japanese", "Swiss", "Argentine", "Brazilian", "Polish", "Russian", "Spanish"))
+```
+
+## Exploratory Data Analysis
+
+Notice the average age of artists over the top 15 nations is 35.57, close to the total average of 35.64. However, it is possible that America is overrepresented in this dataset. Interestingly, by removing America the average age over all nations is 35.86 and over the top 14 is 35.78. However, the differences aren't drastic enough to say America skews the data in any significant way.
+
+```{r}
+mean(artist_data$age)
+mean(top_artist_data$age)
+
+na_artist_data <- artist_data %>%
+  filter(Nationality != "American")
+
+mean(na_artist_data$age)
+
+na_top_artist_data <- top_artist_data %>%
+  filter(Nationality != "American")
+
+mean(na_top_artist_data$age)
+
+```
+
+In the boxplot below we can see the average age of artists from each nation as well as the spread of ages and inner quartile ranges. The plot shows that the average age of artists from each nation are very close.
+
+```{r}
+top_artist_data %>%
+  group_by(Nationality) %>%
+  ggplot(mapping=aes(x=Nationality, y=age)) + 
+  geom_boxplot() + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+Performing a linear regression disproves the hypothesis that nationality affects the age in which an artist creates a work of art of high enough caliber to be in the Modern Museum of art. The resulting p.values are not significantly close to zero, with the exception of Italy.
+
+
+```{r}
+art_fit <- lm(age~Nationality, data=top_artist_data)
+art_fit_stats <- art_fit %>%
+  broom::tidy()
+art_fit_stats
+```
+The violin plot below shows that most residuals are concentrated below zero indicating that there is a higher concentration of ages below the estimate but the outliers above zero are extreme enough to bring raise the estimate. Because of this, the results may be skewed.
+
+```{r}
+augmented_art <- art_fit %>%
+  broom::augment()
+
+augmented_art <- augmented_art %>%
+  mutate(nationality=top_artist_data$Nationality)
+
+augmented_art %>%
+  ggplot(mapping = aes(x=factor(nationality), y = .resid)) +
+  geom_violin() + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+## Conclusion
+
+In conclusion, it would appear that where an artist was from had no effect on the age that they created their first masterpiece. It is notable that the results of the data were possibly skewed due to outliers.
