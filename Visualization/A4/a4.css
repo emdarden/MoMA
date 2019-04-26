@@ -1,0 +1,113 @@
+@font-face {
+    font-family: 'Montserrat';
+    src: url('./Montserrat/Montserrat-Regular.ttf')
+  } 
+
+* {
+    padding: 0;
+    margin: 0;
+    font-family: 'Montserrat';
+}
+
+h1 {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    padding-top: 50px;
+}
+
+h4 {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 75px;
+}
+#selections {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+#selections div {
+    margin-right: 20px;
+}
+
+#svg_container {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    margin-top: 50px;
+    margin-bottom: 50px;
+}
+
+#svg1{
+    position: absolute;
+    visibility: hidden;
+}
+
+#svg2{
+    position: absolute;
+}
+
+#selections p {
+    margin-right: 10px;
+}
+
+text {
+    cursor: default;
+}
+
+#gobtn {
+    width: 30px
+}
+
+#selectViz {
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+}
+
+#selectViz input {
+    margin-right: 5px;
+}
+
+#selectViz p {
+    margin-right: 20px;
+}
+
+#writeUp {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    margin: 0px 300px;
+
+}
+
+#writeUp p {
+    text-align: center;
+}
+
+#writeUp h3 {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0px;
+}
+
+#head {
+    background: rgb(0,148,179);
+    background: -moz-linear-gradient(155deg, rgba(0,148,179,1) 17%, rgba(5,181,217,1) 100%);
+    background: -webkit-linear-gradient(155deg, rgba(0,148,179,1) 17%, rgba(5,181,217,1) 100%);
+    background: linear-gradient(155deg, rgba(0,148,179,1) 17%, rgba(5,181,217,1) 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#0094b3",endColorstr="#05b5d9",GradientType=1);
+    padding-bottom: 50px;
+    color: rgb(245, 243, 243);
+}
+
+#note {
+    display: flex;
+    justify-content: center; 
+    margin-top: 30px;
+}
+
+#svg1, #svg2 {
+    margin-bottom: 50px;
+}

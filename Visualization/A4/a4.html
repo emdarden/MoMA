@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>A4: Interactive Visualization </title>
+  <script src="./d3.js"></script>
+  <script src="d3.layout.cloud.js"></script>
+  <link rel="stylesheet" type="text/css" href="./a4.css">
+</head>
+
+<body>
+    <section id="head">
+
+        <h1>Visualizing the Artists of MoMA</h1>
+        <h4>By: Erika Darden</h4>
+        <section id="writeUp">
+            <h3>The Dataset</h3>
+
+            <p>This interactive visualization let’s you explore the artists of the Museum of Modern Art. The dataset includes over 119,000 artworks with artists from over 120 countries. Using this tool you can discover the artists with the most pieces in MoMA’s collection based on nationality, gender, and medium. You can choose from the top 35 countries with over 100 entries and 9 different mediums (although there are many different mediums present in the dataset). If you select all nationalities it will include all 126 countries and all mediums will include every medium. (DISCLAIMER: Selecting “All” may increase time to produce visualizations. (It’s not broken, just slow!))</p>
+
+            <h3>The Visualization</h3>
+
+            <p>The visualization contains a word cloud and a bar chart. The word cloud is created with each artists’ surname displayed based on the number of artworks the artist has in the chosen set. The bigger the name, the more artworks. The font size is based on a logarithmic scale. When the name is hovered, a tooltip showing the artists full name and number of artwords is displayed. It’s worth noting that word clouds are not the most accurate visualization to analyze data. It can be difficult to tell the difference between words close in size and longer words and words with many ascenders and descenders may have more emphasis. However, the chosen font helps alleviate some of those issues. The visualization is also not very interesting with small sets. Please note that the colors of names in the word cloud are random and have no significance.
+
+            In order to more clearly analyze the data I have also included the option to show a bar chart. To show the bar chart just select the “Bar Chart” option and easily toggle between the two visualizations. The bar chart is easier to analyze but less interesting aesthetically. Ultimately I chose the word cloud as the primary visualization because it was more aesthetically appealing and complemented the artistic nature of the dataset.</p>
+
+            <h3>The Process</h3>
+
+            <p>First, I had to figure out the best way to load and combine two separate datasets. Then, I used the d3 <a href="https://github.com/jasondavies/d3-cloud" target="_blank">cloud()</a> library to create the word cloud visualizations. The library was easy to use after analyzing some examples but took a few hours to iron out the details. The most time consuming part was analyzing and filtering the data properly and implementing the interactivity. I used Tableau to analyze the different mediums to decide which words and phrases seemed to be the most prevalent and determine which countries had over 100 entries. Adding the bar chart was the easiest piece to implement.</p>
+        </section>
+    </section>
+        <p id="note">(Note: Data takes a few seconds to load when page is first loaded.)</p>
+        <section id="selections">
+            <p>Nationality: </p>
+            <div>
+                <select id="nationality">
+                    <option>All</option>
+                    <option>American</option>
+                    <option>Argentine</option>
+                    <option>Australian</option>
+                    <option>Austrian</option>
+                    <option>Belgian</option>
+                    <option>Brazilian</option>
+                    <option>British</option>
+                    <option>Canadian</option>
+                    <option>Chilean</option>
+                    <option>Chinese</option>
+                    <option>Colombian</option>
+                    <option>Croatian</option>
+                    <option>Cuban</option>
+                    <option>Czech</option>
+                    <option>Danish</option>
+                    <option>Dutch</option>
+                    <option>Finnish</option>
+                    <option>French</option>
+                    <option>German</option>
+                    <option>Hungarian</option>
+                    <option>Israeli</option>
+                    <option>Italian</option>
+                    <option>Japanese</option>
+                    <option>Mexican</option>
+                    <option>Norwegian</option>
+                    <option>Peruvian</option>
+                    <option>Polish</option>
+                    <option>Portugese</option>
+                    <option>Russian</option>
+                    <option>South African</option>
+                    <option>Spanish</option>
+                    <option>Swedish</option>
+                    <option>Swiss</option>
+                    <option>Venezuelan</option>
+                    <option>Yugoslav</option>
+                </select>
+            </div>
+            <p>Gender: </p>
+            <div>
+                <select id="gender">
+                    <option>Both</option>
+                    <option>Male</option>
+                    <option>Female</option>
+                </select>
+            </div>
+            <p>Medium: </p>
+            <div>
+                <select id="medium">
+                    <option>All</option>
+                    <option>oil on canvas</option>
+                    <option>colored pencil</option>
+                    <option>pencil on paper</option>
+                    <option>watercolor</option>
+                    <option>lithograph</option>
+                    <option>video/film</option>
+                    <option>photography</option>
+                    <option>etching</option>
+                    <option>pen and ink</option>
+                </select>
+            </div>
+            <button id="gobtn">GO!</button>
+        </section>
+
+        <section id="selectViz">
+            <input type="radio" name="viz" id="wordCloud" checked><p>Word Cloud</p>
+            <input type="radio" name="viz" id="barChart" ><p>Bar Chart</p>
+
+        </section>
+
+    <section id="svg_container">
+        <svg id="svg1" width="1050" height="1050"></svg>
+        <svg id="svg2" width="1050" height="1050"></svg>
+    </section>
+    
+
+
+    <script src="./a4.js"></script>
+</body>
+</html>
